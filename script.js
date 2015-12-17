@@ -1,7 +1,7 @@
 "use strict";
 
 (function () {
-    var dataset, dataUrl = "data/schools.json";
+    var dataset, dataUrl = "./data/schools.json";
     var schools, muncode, muncodes;
 
     function doCrossfilter() {
