@@ -1,6 +1,7 @@
 "use strict";
 
 (function () {
+    var dataPropertyKey = "__data__";
 
     var tk = {};
 
@@ -41,7 +42,7 @@
 
     tk_selectionPrototype.each = function (callback) {
         return tk_selection_each(this, function (node, i, j) {
-            callback.call(node, node.__data__, i, j);
+            callback.call(node, node[dataPropertyKey], i, j);
         });
     };
 
@@ -99,8 +100,8 @@
 
     tk_selectionPrototype.datum = function (value) {
         return arguments.length
-            ? this.property("__data__", value)
-            : this.property("__data__");
+            ? this.property([dataPropertyKey], value)
+            : this.property([dataPropertyKey]);
     };
 
 
