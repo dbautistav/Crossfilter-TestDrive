@@ -104,8 +104,31 @@
     };
 
 
+    var tk_arraySlice = [].slice,
+        tk_array = function (list) {
+            return tk_arraySlice.call(list);
+        }; // conversion for NodeLists
+
+    tk_selectionPrototype.call = function (callback) {
+        var args = tk_array(arguments);
+        callback.apply(args[0] = this, args);
+        return this;
+    };
+
+
+    //  ==========================================================
+    function log(objAsMsg, title) {
+        console.log(title, JSON.stringify(objAsMsg, null, " "));
+    }
+
+    function printMe(data) {
+        log(data, "printMe!");
+    }
+
+
+    //  ==========================================================
     (function () {
-        console.log('select("#container")', select("#container"));
-        console.log('select("#container").datum([1, 3, 5, 7, 9])', select("#container").datum([1, 3, 5, 7, 9]));
+        console.log('select("#container").datum([1, 3, 5, 7, 9]).call(printMe)', select("#container").datum([1, 3, 5, 7, 9]).call(printMe));
     })();
+
 })();
