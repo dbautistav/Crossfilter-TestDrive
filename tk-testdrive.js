@@ -30,14 +30,14 @@
 
     var tk_selectionPrototype = tk.selection.prototype = [];
 
-    function select(node) {
+    tk.select = function (node) {
         var group;
         if (typeof node === "string") {
             group = [tk_document.querySelector(node)];
             group.parentNode = tk_document.documentElement;
         }
         return tk_selection([group]);
-    }
+    };
 
     tk_selectionPrototype.each = function (callback) {
         return tk_selection_each(this, function (node, i, j) {
@@ -107,7 +107,7 @@
     var tk_arraySlice = [].slice,
         tk_array = function (list) {
             return tk_arraySlice.call(list);
-        }; // conversion for NodeLists
+        };
 
     tk_selectionPrototype.call = function (callback) {
         var args = tk_array(arguments);
