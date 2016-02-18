@@ -16,6 +16,44 @@
     }
 
 
+    /**
+     * Toolkit: dimensions, group, filters
+     * ===================================
+     *
+     * Example output:
+     *
+     *   keys 9 ["Bici", "Ciclo_Estacion_Arribo", "Ciclo_Estacion_Retiro",
+     *              "Edad_Usuario", "Fecha_Arribo", "Fecha_Retiro", "Genero_Usuario",
+     *              "Hora_Arribo", "Hora_Retiro"]
+     *
+     *   filterExact("0331")
+     *   43. F
+     *   32. M
+     *   18. M
+     *   72. M
+     *   43. F
+     *   34. M
+     *   32. M
+     *   21. M
+     *   30. F
+     *   25. M
+     *   36. M
+     *   30. M
+     *   23. M
+     *   42. M
+     *   29. M
+     *   47. M
+     *   55. M
+     *   33. F
+     *
+     *   byGenderGroup
+     *   M: 14
+     *   F: 4
+     *
+     *   Total # of users: 795614
+     *   # of users between 23 yo and 25 yo (both included): 53268
+     *
+     */
     function doCrossfilter(dataset) {
         //// [795614]:
         ////  {
@@ -71,6 +109,7 @@
         // console.log("observations.groupAll().reduceCount().value()", observations.groupAll().reduceCount().value());
 
 
+        // Resets previous filters:
         byBike.filterAll();
 
 
@@ -91,13 +130,21 @@
 
 
         // ~~~~
+        t0 = 20;
+        tf = 21;
+        byAge.filter([t0, tf]);
+        byGender.filterExact("F");
+
+        console.log("# of users between " + t0 + " yo and " + tf + " yo (both included): " + byAge.top(Infinity).length);
+
         var byAgeGroup = byAge.group();
-        //byAgeGroup.top(Infinity).forEach(function (o, i) {
-        //    console.log(o.key + ": " + o.value);
-        //});
+        byAgeGroup.top(Infinity).forEach(function (o, i) {
+            console.log(o.key + ": " + o.value);
+        });
 
 
         // This frees up space.
+        //  (groups and dimensions)
         byGenderGroup.dispose();
         byGender.dispose();
         byBikeGroup.dispose();
@@ -138,6 +185,10 @@
 
             // Execute callback after setting up UI elements
             cb(dataset);
+
+        } else {
+            $("#container")
+                .html("<h3>Error!  D:</h3><p>Check the dev-tools console.</p>");
         }
 
     }
