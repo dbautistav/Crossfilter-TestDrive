@@ -101,12 +101,17 @@
         var byGender = observations.dimension(function (o) {
             return o.Genero_Usuario;
         });
-        var byGenderGroup = byGender.group();
+
         console.log("byGenderGroup");
-        byGenderGroup.top(Infinity).forEach(function (o, i) {
-            console.log(o.key + ": " + o.value);
+        var byGenderGroup = byGender.group();
+        //byGenderGroup.top(Infinity).forEach(function (o, i) {
+        //    console.log(o.key + ": " + o.value);
+        //});
+        //// console.log("observations.groupAll().reduceCount().value()", observations.groupAll().reduceCount().value());
+        var filtered = byGender.top(Infinity).map(function (o, i) {
+            return o;
         });
-        // console.log("observations.groupAll().reduceCount().value()", observations.groupAll().reduceCount().value());
+        console.log(filtered);
 
 
         // Resets previous filters:
