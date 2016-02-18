@@ -1,8 +1,8 @@
 "use strict";
 
 (function () {
-    //var dataUrl = "./data/11.json";
-    var dataUrl = "https://raw.githubusercontent.com/dbautistav/datahub/gh-pages/ecobici/2015/11.json";
+    var dataUrl = "./data/11.json";
+    //var dataUrl = "https://raw.githubusercontent.com/dbautistav/datahub/gh-pages/ecobici/2015/11.json";
 
     var keys = [];
 
@@ -90,23 +90,22 @@
         //    console.log(o.key + ": " + o.value);
         //});
 
-        byBike.filterExact("0331");
+        byBike.filter("0331");      // also: byBike.filterExact("0331");
         console.log('filterExact("0331")');
         byBike.top(Infinity).forEach(function (o, i) {
             console.log(o.Edad_Usuario + ". " + o.Genero_Usuario);
         });
-
 
         // ~~~~
         var byGender = observations.dimension(function (o) {
             return o.Genero_Usuario;
         });
 
-        console.log("byGenderGroup");
         var byGenderGroup = byGender.group();
-        //byGenderGroup.top(Infinity).forEach(function (o, i) {
-        //    console.log(o.key + ": " + o.value);
-        //});
+        console.log("byGenderGroup");
+        byGenderGroup.top(Infinity).forEach(function (o, i) {
+            console.log(o.key + ": " + o.value);
+        });
         //// console.log("observations.groupAll().reduceCount().value()", observations.groupAll().reduceCount().value());
         var filtered = byGender.top(Infinity).map(function (o, i) {
             return o;
@@ -115,13 +114,14 @@
 
 
         // Resets previous filters:
-        byBike.filterAll();
+        byBike.filter(null);     // also: byBike.filterAll();
 
 
         var byAge = observations.dimension(function (o) {
             return o.Edad_Usuario;
         });
-        console.log("Total # of users: " + byAge.top(Infinity).length);
+        console.log("Total # of users (dimension-top): " + byAge.top(Infinity).length);
+        console.log("Total # of users (crossfilter-size): " + observations.size());
 
         var t0 = 23, tf = 25;
         byAge.filter([t0, tf]);
@@ -140,12 +140,16 @@
         byAge.filter([t0, tf]);
         byGender.filterExact("F");
 
-        console.log("# of users between " + t0 + " yo and " + tf + " yo (both included): " + byAge.top(Infinity).length);
+        console.log("# of female users between " + t0 + " yo and " + tf + " yo (both included): " + byAge.top(Infinity).length);
 
         var byAgeGroup = byAge.group();
         byAgeGroup.top(Infinity).forEach(function (o, i) {
             console.log(o.key + ": " + o.value);
         });
+
+        //byAge.top(Infinity).forEach(function (o, i) {
+        //    console.log(o.key + ": " + o.value);
+        //});
 
 
         // This frees up space.
