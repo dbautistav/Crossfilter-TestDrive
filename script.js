@@ -1,8 +1,8 @@
 "use strict";
 
 (function () {
-    var dataUrl = "./data/11.json";
-    //var dataUrl = "https://raw.githubusercontent.com/dbautistav/datahub/gh-pages/ecobici/2015/11.json";
+    //var dataUrl = "./data/11.json";
+    var dataUrl = "https://raw.githubusercontent.com/dbautistav/datahub/gh-pages/ecobici/2015/11.json";
 
     var keys = [];
 
