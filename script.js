@@ -11,6 +11,8 @@
 
 
     function activate() {
+        // TODO: get & use catalog.
+        //  https://raw.githubusercontent.com/dbautistav/datahub/gh-pages/catalog.json
         d3.csv(dataUrl, responseHandler);
 
     }
