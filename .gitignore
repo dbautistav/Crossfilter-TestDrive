@@ -1,5 +1,5 @@
 .idea
-data
+app/data
 node_modules
 
 *.log

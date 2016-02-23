@@ -1,24 +1,9 @@
 "use strict";
 
 import crossfilter from "crossfilter";
-import d3 from "d3";
-import _ from "lodash";
+//import Q from "q";
+import $ from "jquery";
 
-let keys = [];
-
-export function testdrive() {
-    console.log("Hello there!");
-}
-
-export const dataUrl = "./data/11.json";
-//export const dataUrl = "https://raw.githubusercontent.com/dbautistav/datahub/gh-pages/ecobici/2015/11.json";
-
-export function activate() {
-    // TODO: get & use catalog.
-    //  https://raw.githubusercontent.com/dbautistav/datahub/gh-pages/catalog.json
-    d3.csv(dataUrl, responseHandler);
-
-}
 
 /**
  * Toolkit: dimensions, group, filters
@@ -76,11 +61,11 @@ export function doCrossfilter(dataset) {
     //console.log("observations", observations);
 
     // ~~~~
-    //$("#container")
-    //    .html(
-    //        "<h2>Items loaded: " + observations.size() + "</h2>" +
-    //        "<p>Check the dev-tools console.</p>"
-    //    );
+    $("#container")
+        .html(
+            "<h2>Items loaded: " + observations.size() + "</h2>" +
+            "<p>Check the dev-tools console.</p>"
+        );
 
     let byBike = observations.dimension(function (o) {
         return o.Bici;
@@ -182,42 +167,5 @@ export function doCrossfilter(dataset) {
     byBike.dispose();
     byAgeGroup.dispose();
     byAge.dispose();
-
-}
-
-export function responseHandler(response) {
-    setupUI(response, doCrossfilter);
-
-}
-
-export function setupUI(dataset, cb) {
-    ////  {
-    ////    Bici: "3415",
-    ////    Ciclo_Estacion_Arribo: "132",
-    ////    Ciclo_Estacion_Retiro: "129",
-    ////    Edad_Usuario: "29",
-    ////    Fecha_Arribo: "2015-11-01",
-    ////    Fecha_Retiro: "2015-11-01",
-    ////    Genero_Usuario: "M",
-    ////    Hora_Arribo: "00:04:24",
-    ////    Hora_Retiro: "00:00:01.623000"
-    ////  }
-
-    if (dataset.length > 0) {
-        keys = _.orderBy(_.keysIn(dataset[0]), _.identity, ["asc"]);
-        console.log("keys", keys.length, keys);
-
-        // TODO: finish this!
-        // TODO: finish this!
-        //$("#container")
-        // .html("<h2>Items loaded: " + observations.size() + "</h2><p>Check the dev-tools console.</p>");
-
-        // Execute callback after setting up UI elements
-        cb(dataset);
-
-    } else {
-        //$("#container")
-        //    .html("<h3>Error!  D:</h3><p>Check the dev-tools console.</p>");
-    }
 
 }
