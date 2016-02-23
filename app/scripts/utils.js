@@ -10,20 +10,32 @@ export const LOGGER_LEVEL = {
     WARN: "warn"
 };
 
-export const errorHandler = loggerProvider("ERROR!", LOGGER_LEVEL.ERROR);
+export const errorHandler = logger4PromiseProvider("ERROR!", LOGGER_LEVEL.ERROR);
 
-export function loggerProvider(caller, method) {
+export function loggerProvider(method) {
+    const level = method ? method : LOGGER_LEVEL.LOG;
+    return (msg, title) => {
+        const label = title ? title : "";
+        console[level](label, msg);
+    };
+}
+
+export function logger4PromiseProvider(msg, method) {
     const level = method ? method : LOGGER_LEVEL.LOG;
 
     return (response) => {
         return Q().then(() => {
-            console[level](caller, response);
+            console[level](msg, response);
             return response;
         });
     };
 }
 
+export function propagateResult(response) {
+    return response;
+}
+
 export function responseLoggerProvider(caller, method) {
     const label = caller ? `@${caller}` : "";
-    return loggerProvider(`response ${label}`, method);
+    return logger4PromiseProvider(`response ${label}`, method);
 }

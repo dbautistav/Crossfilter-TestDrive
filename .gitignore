@@ -1,5 +1,4 @@
 .idea
-app/data
 node_modules
 
 *.log

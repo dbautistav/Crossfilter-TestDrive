@@ -2,11 +2,13 @@
 
 import * as utils from "./scripts/utils";
 import { setup } from "./scripts/setup";
+import { doCrossfilter } from "./scripts/cross";
 
 
 {
-    const responseLogger = utils.responseLoggerProvider("main.js");
     setup()
-        .then(responseLogger)
+        //.then(utils.responseLoggerProvider("main.js (1)"))
+        .then(doCrossfilter)
+        //.then(utils.responseLoggerProvider("main.js (2)"))
         .catch(utils.errorHandler);
 }

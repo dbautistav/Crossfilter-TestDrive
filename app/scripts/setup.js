@@ -6,7 +6,6 @@ import $ from "jquery";
 import _ from "lodash";
 
 import * as utils from "./utils";
-import { doCrossfilter } from "./cross";
 
 
 const datasetOfInterestName = "Ecobici";
@@ -15,18 +14,11 @@ const urls = {
 };
 
 export function setup() {
-    const responseLogger = utils.responseLoggerProvider("main Q call");
-
     return Q(getCatalog())
         .then(getDatasetUrl)
         .then(getDataset)
-        .then(responseLogger)
-        .then(doCrossfilter)
-
-        //.then((response) => {
-        //    return response;
-        //})
-        ;
+        //.then(utils.responseLoggerProvider("main Q call"))
+        .then(utils.propagateResult);
 }
 
 

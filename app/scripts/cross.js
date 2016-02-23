@@ -1,8 +1,10 @@
 "use strict";
 
 import crossfilter from "crossfilter";
-//import Q from "q";
+import Q from "q";
 import $ from "jquery";
+
+import * as utils from "./utils";
 
 
 /**
@@ -44,128 +46,133 @@ import $ from "jquery";
  *
  */
 export function doCrossfilter(dataset) {
-    //// [795614]:
-    ////  {
-    ////    Bici: "3415",
-    ////    Ciclo_Estacion_Arribo: "132",
-    ////    Ciclo_Estacion_Retiro: "129",
-    ////    Edad_Usuario: "29",
-    ////    Fecha_Arribo: "2015-11-01",
-    ////    Fecha_Retiro: "2015-11-01",
-    ////    Genero_Usuario: "M",
-    ////    Hora_Arribo: "00:04:24",
-    ////    Hora_Retiro: "00:00:01.623000"
-    ////  }
+    const logger = utils.loggerProvider();
 
-    let observations = crossfilter(dataset);
-    //console.log("observations", observations);
+    return Q().then(() => {
+        //// [795614]:
+        ////  {
+        ////    Bici: "3415",
+        ////    Ciclo_Estacion_Arribo: "132",
+        ////    Ciclo_Estacion_Retiro: "129",
+        ////    Edad_Usuario: "29",
+        ////    Fecha_Arribo: "2015-11-01",
+        ////    Fecha_Retiro: "2015-11-01",
+        ////    Genero_Usuario: "M",
+        ////    Hora_Arribo: "00:04:24",
+        ////    Hora_Retiro: "00:00:01.623000"
+        ////  }
 
-    // ~~~~
-    $("#container")
-        .html(
-            "<h2>Items loaded: " + observations.size() + "</h2>" +
-            "<p>Check the dev-tools console.</p>"
-        );
+        let observations = crossfilter(dataset);
+        //logger(observations, "observations");
 
-    let byBike = observations.dimension(function (o) {
-        return o.Bici;
-    });
+        // ~~~~
+        $("#container")
+            .html(
+                "<h2>Items loaded: " + observations.size() + "</h2>" +
+                "<p>Check the dev-tools console.</p>"
+            );
+
+        let byBike = observations.dimension((o, i) => {
+            return o.Bici;
+        });
 
 
-    let byBikeGroup = byBike.group();
-    console.log("byBikeGroup", byBikeGroup.size());
+        let byBikeGroup = byBike.group();
+        logger(byBikeGroup.size(), "byBikeGroup");
 
-    //// Prints every 'Bici' id and number of occurrences:
-    //byBikeGroup.top(Infinity).forEach(function (o, i) {
-    ////    key: set by dimension definition (observation attribute); value: count of 'key' occurrences
-    //    console.log(o.key + ": " + o.value);
-    //});
-
-    byBike.filter("0331");      // also: byBike.filterExact("0331");
-    console.log('filterExact("0331")    |    (Edad. Genero)');
-    byBike.top(Infinity).forEach(function (o, i) {
-        console.log(o.Edad_Usuario + ". " + o.Genero_Usuario);
-    });
-
-    // ~~~~
-    let byGender = observations.dimension(function (o) {
-        return o.Genero_Usuario;
-    });
-
-    let byGenderGroup = byGender.group();
-    console.log("byGenderGroup", byGenderGroup.size());
-    byGenderGroup.top(Infinity).forEach(function (o, i) {
+        //// Prints every 'Bici' id and number of occurrences:
+        //byBikeGroup.top(Infinity).forEach((o, i) => {
         ////    key: set by dimension definition (observation attribute); value: count of 'key' occurrences
-        console.log(o.key + ": " + o.value);
-    });
-    //// console.log("observations.groupAll().reduceCount().value()", observations.groupAll().reduceCount().value());
-    let filtered = byGender.top(Infinity).map(function (o, i) {
-        return o;
-    });
-    console.log(filtered);
+        //    console.log(o.key + ": " + o.value);
+        //});
+
+        byBike.filter("0331");      // also: byBike.filterExact("0331");
+        console.log('filterExact("0331")    |    (Edad. Genero)');
+        byBike.top(Infinity).forEach((o, i) => {
+            console.log(o.Edad_Usuario + ". " + o.Genero_Usuario);
+        });
+
+        // ~~~~
+        let byGender = observations.dimension((o, i) => {
+            return o.Genero_Usuario;
+        });
+
+        let byGenderGroup = byGender.group();
+        logger(byGenderGroup.size(), "byGenderGroup");
+        byGenderGroup.top(Infinity).forEach((o, i) => {
+            ////    key: set by dimension definition (observation attribute); value: count of 'key' occurrences
+            console.log(o.key + ": " + o.value);
+        });
+        //// console.log("observations.groupAll().reduceCount().value()", observations.groupAll().reduceCount().value());
+        let filtered = byGender.top(Infinity).map((o, i) => {
+            return o;
+        });
+        console.log(filtered);
 
 
-    // Resets previous filters:
-    byBike.filter(null);     // also: byBike.filterAll();
+        // Resets previous filters:
+        byBike.filter(null);     // also: byBike.filterAll();
 
 
-    let byAge = observations.dimension(function (o) {
-        return parseInt(o.Edad_Usuario);
-    });
-    console.log("Total # of users (dimension-top): " + byAge.top(Infinity).length);
-    console.log("Total # of users (crossfilter-size): " + observations.size());
+        let byAge = observations.dimension((o, i) => {
+            return parseInt(o.Edad_Usuario);
+        });
+        logger(`Total # of users (dimension-top): ${byAge.top(Infinity).length}`);
+        logger(`Total # of users (crossfilter-size): ${observations.size()}`);
 
-    let t0 = 23, tf = 25;
-    byAge.filter([t0, tf]);
-    console.log("# of users between " + t0 + " yo and " + tf + " yo (both included): " + byAge.top(Infinity).length);
-
-
-    //// Prints every 'Bici' id and number of occurrences (affected by previous 'byAge.filter'):
-    //byBikeGroup.top(Infinity).forEach(function (o, i) {
-    ////    key: set by dimension definition (observation attribute); value: count of 'key' occurrences
-    //    console.log(o.key + ": " + o.value);
-    //});
+        let t0 = 23, tf = 25;
+        byAge.filter([t0, tf]);
+        logger(`# of users between ${t0} yo and ${tf} yo (both included): ${byAge.top(Infinity).length}`);
 
 
-    // ~~~~
-    t0 = 20;
-    tf = 21;
-    byAge.filter([t0, tf]);
-
-    console.log("# of users between " + t0 + " yo and " + tf + " yo (both included): " + byAge.top(Infinity).length);
-
-    // By default, the group's reduce function will count the number of records per group.
-    // In addition, the groups will be ordered by count.
-    // [...] a grouping intersects the crossfilter's current filters,
-    //  except for the associated dimension's filter.
-    //  Thus, group methods consider only records that satisfy every filter except this dimension's filter.
-    byGenderGroup.top(Infinity).forEach(function (o, i) {
+        //// Prints every 'Bici' id and number of occurrences (affected by previous 'byAge.filter'):
+        //byBikeGroup.top(Infinity).forEach((o, i) => {
         ////    key: set by dimension definition (observation attribute); value: count of 'key' occurrences
-        console.log(o.key + ": " + o.value);
+        //    console.log(o.key + ": " + o.value);
+        //});
+
+
+        // ~~~~
+        t0 = 20;
+        tf = 21;
+        byAge.filter([t0, tf]);
+
+        logger(`# of users between ${t0} yo and ${tf} yo (both included): ${byAge.top(Infinity).length}`);
+
+        // By default, the group's reduce function will count the number of records per group.
+        // In addition, the groups will be ordered by count.
+        // [...] a grouping intersects the crossfilter's current filters,
+        //  except for the associated dimension's filter.
+        //  Thus, group methods consider only records that satisfy every filter except this dimension's filter.
+        byGenderGroup.top(Infinity).forEach((o, i) => {
+            ////    key: set by dimension definition (observation attribute); value: count of 'key' occurrences
+            console.log(o.key + ": " + o.value);
+        });
+
+
+        byAge.filter(null);
+        let byAgeGroup = byAge.group();
+        console.log("byAgeGroup", byAgeGroup.size(), byAge.bottom(1)[0].Edad_Usuario, byAge.top(1)[0].Edad_Usuario);
+
+        //byBikeGroup.top(Infinity).forEach((o, i) => {
+        ////    key: set by dimension definition (observation attribute); value: count of 'key' occurrences
+        //    console.log(o.key + ": " + o.value);
+        //});
+        //byAge.top(Infinity).forEach((o, i) => {
+        ////    key: set by dimension definition (observation attribute); value: count of 'key' occurrences
+        //    console.log(o.key + ": " + o.value);
+        //});
+
+
+        // This frees up space.
+        //  (groups and dimensions)
+        byGenderGroup.dispose();
+        byGender.dispose();
+        byBikeGroup.dispose();
+        byBike.dispose();
+        byAgeGroup.dispose();
+        byAge.dispose();
+
+        return true;
     });
-
-
-    byAge.filter(null);
-    let byAgeGroup = byAge.group();
-    console.log("byAgeGroup", byAgeGroup.size(), byAge.bottom(1)[0].Edad_Usuario, byAge.top(1)[0].Edad_Usuario);
-
-    //byBikeGroup.top(Infinity).forEach(function (o, i) {
-    ////    key: set by dimension definition (observation attribute); value: count of 'key' occurrences
-    //    console.log(o.key + ": " + o.value);
-    //});
-    //byAge.top(Infinity).forEach(function (o, i) {
-    ////    key: set by dimension definition (observation attribute); value: count of 'key' occurrences
-    //    console.log(o.key + ": " + o.value);
-    //});
-
-
-    // This frees up space.
-    //  (groups and dimensions)
-    byGenderGroup.dispose();
-    byGender.dispose();
-    byBikeGroup.dispose();
-    byBike.dispose();
-    byAgeGroup.dispose();
-    byAge.dispose();
-
 }
