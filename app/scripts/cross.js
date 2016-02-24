@@ -1,6 +1,7 @@
 "use strict";
 
 import crossfilter from "crossfilter";
+import moment from "moment";
 import Q from "q";
 import $ from "jquery";
 
@@ -68,8 +69,8 @@ export function doCrossfilter(dataset) {
         // ~~~~
         $("#container")
             .html(
-                "<h2>Items loaded: " + observations.size() + "</h2>" +
-                "<p>Check the dev-tools console.</p>"
+                `<h2>Items loaded: ${observations.size()}</h2>
+                <p>Check the dev-tools console.</p>`
             );
 
         let byBike = observations.dimension((o, i) => {
@@ -83,13 +84,13 @@ export function doCrossfilter(dataset) {
         //// Prints every 'Bici' id and number of occurrences:
         //byBikeGroup.top(Infinity).forEach((o, i) => {
         ////    key: set by dimension definition (observation attribute); value: count of 'key' occurrences
-        //    console.log(o.key + ": " + o.value);
+        //    logger(`${o.key} : ${o.value}`);
         //});
 
         byBike.filter("0331");      // also: byBike.filterExact("0331");
-        console.log('filterExact("0331")    |    (Edad. Genero)');
+        logger('filterExact("0331")    |    (Edad. Genero)');
         byBike.top(Infinity).forEach((o, i) => {
-            console.log(o.Edad_Usuario + ". " + o.Genero_Usuario);
+            logger(`${o.Edad_Usuario} . ${o.Genero_Usuario}`);
         });
 
         // ~~~~
@@ -101,13 +102,13 @@ export function doCrossfilter(dataset) {
         logger(byGenderGroup.size(), "byGenderGroup");
         byGenderGroup.top(Infinity).forEach((o, i) => {
             ////    key: set by dimension definition (observation attribute); value: count of 'key' occurrences
-            console.log(o.key + ": " + o.value);
+            logger(`${o.key} : ${o.value}`);
         });
-        //// console.log("observations.groupAll().reduceCount().value()", observations.groupAll().reduceCount().value());
+        //// logger(["observations.groupAll().reduceCount().value()", observations.groupAll().reduceCount().value()]);
         let filtered = byGender.top(Infinity).map((o, i) => {
             return o;
         });
-        console.log(filtered);
+        logger(filtered);
 
 
         // Resets previous filters:
@@ -128,7 +129,7 @@ export function doCrossfilter(dataset) {
         //// Prints every 'Bici' id and number of occurrences (affected by previous 'byAge.filter'):
         //byBikeGroup.top(Infinity).forEach((o, i) => {
         ////    key: set by dimension definition (observation attribute); value: count of 'key' occurrences
-        //    console.log(o.key + ": " + o.value);
+        //    logger(`${o.key} : ${o.value}`);
         //});
 
 
@@ -146,21 +147,21 @@ export function doCrossfilter(dataset) {
         //  Thus, group methods consider only records that satisfy every filter except this dimension's filter.
         byGenderGroup.top(Infinity).forEach((o, i) => {
             ////    key: set by dimension definition (observation attribute); value: count of 'key' occurrences
-            console.log(o.key + ": " + o.value);
+            logger(`${o.key} : ${o.value}`);
         });
 
 
         byAge.filter(null);
         let byAgeGroup = byAge.group();
-        console.log("byAgeGroup", byAgeGroup.size(), byAge.bottom(1)[0].Edad_Usuario, byAge.top(1)[0].Edad_Usuario);
+        logger(["byAgeGroup", byAgeGroup.size(), byAge.bottom(1)[0].Edad_Usuario, byAge.top(1)[0].Edad_Usuario]);
 
         //byBikeGroup.top(Infinity).forEach((o, i) => {
         ////    key: set by dimension definition (observation attribute); value: count of 'key' occurrences
-        //    console.log(o.key + ": " + o.value);
+        //    logger(`${o.key} : ${o.value}`);
         //});
         //byAge.top(Infinity).forEach((o, i) => {
         ////    key: set by dimension definition (observation attribute); value: count of 'key' occurrences
-        //    console.log(o.key + ": " + o.value);
+        //    logger(`${o.key} : ${o.value}`);
         //});
 
 
