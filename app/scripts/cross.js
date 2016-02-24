@@ -50,6 +50,17 @@ export function doCrossfilter(dataset) {
     const logger = utils.loggerProvider();
 
     return Q().then(() => {
+        /**
+         * Dynamic dimensions (crossfilter):
+         *  > Age
+         *  > Gender
+         *  > Time of use (°°°°)
+         *
+         * Fixed dimensions:
+         *  > Bike
+         *  > Stations (°°)
+         * */
+
         //// [795614]:
         ////  {
         ////    Bici: "3415",
