@@ -67,7 +67,7 @@ export function doCrossfilter(dataset) {
         //logger(observations, "observations");
 
         // ~~~~
-        $("#container")
+        $("#jumbo")
             .html(
                 `<h2>Items loaded: ${observations.size()}</h2>
                 <p>Check the dev-tools console.</p>`
