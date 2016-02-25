@@ -5,18 +5,26 @@
     <title>Crossfilter TestDrive</title>
 </head>
 <body>
+<!--    TODO: add navigation links    -->
 <div class="container">
+
     <div class="row">
         <div id="jumbo" class="jumbotron">
             <h2>Downloading a lot of data...</h2>
-            <p><em>This may take a while to complete.</em></p>
+            <p><em>This may take a while to complete (<a target="_blank" href="https://github.com/dbautistav/Crossfilter-TestDrive#disclaimer">why?</a>)</em></p>
         </div>
     </div>
 
     <div class="row">
-        <div id="age" class="chart col-lg-4 col-md-4 col-sm-4 col-xs-4"></div>
-        <div id="gender" class="col-lg-4 col-md-4 col-sm-4 col-xs-4"></div>
-        <div id="time" class="chart col-lg-4 col-md-4 col-sm-4 col-xs-4"></div>
+        <div id="age" class="chart col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div class="title">Age</div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div id="time" class="chart col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div class="title">Use time</div>
+        </div>
     </div>
 
     <div class="row">
@@ -24,6 +32,7 @@
     </div>
 
 </div>
+<!--    TODO: add footer    -->
 
 <script src="./app.js"></script>
 </body>
