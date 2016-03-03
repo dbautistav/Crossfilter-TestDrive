@@ -49,9 +49,6 @@ import * as utils from "./utils";
  */
 export function explore(dataset) {
     const formatNumber = d3.format(",d")
-        , formatChange = d3.format("+,d")
-        , formatDate = d3.time.format("%B %d, %Y")
-        , formatTime = d3.time.format("%I:%M %p")
         , logger = utils.loggerProvider()
         ;
 
@@ -84,39 +81,36 @@ export function explore(dataset) {
             , all = observations.groupAll()
             , byAge = observations.dimension(dimensionByPropProvider("Edad_Usuario"))
             , byAgeGroup = byAge.group()
-            , byGender = observations.dimension(dimensionByPropProvider("Genero_Usuario"))
+            , byGender = observations.dimension(dimensionByGender)
             , byGenderGroup = byGender.group()
             , byUseTime = observations.dimension(dimensionByUseTime)
             , byUseTimeGroup = byUseTime.group()
             , crossfilterSize = observations.size()
+            //  TODO - improve this:
+            , dummy = observations.dimension(dimensionByPropProvider("Genero_Usuario"))
             ;
 
         activate();
 
-        //byUseTimeGroup.top(Infinity).forEach((o, i) => {
-        //    ////    key: set by dimension definition (observation attribute); value: count of 'key' occurrences
-        //    logger(`${o.key} : ${o.value}`);
-        //});
-
         let charts = [
+
+            barChart()
+                .dimension(byGender)
+                .group(byGenderGroup)
+                .x(
+                    d3.scale.linear()
+                        .domain([0, 12])
+                        .rangeRound([0, 10 * 12])
+                ),
 
             barChart()
                 .dimension(byAge)
                 .group(byAgeGroup)
                 .x(
                     d3.scale.linear()
-                        .domain([10, 100])
-                        .rangeRound([10, 10 * 100])
+                        .domain([10, 90])
+                        .rangeRound([10, 10 * 90])
                 ),
-
-            //barChart()
-            //    .dimension(byGender)
-            //    .group(byGenderGroup)
-            //    .x(
-            //        d3.scale.linear()
-            //            //.domain([0, 110])
-            //            //.rangeRound([0, 10 * 110])
-            //    ),
 
             barChart()
                 .dimension(byUseTime)
@@ -137,12 +131,12 @@ export function explore(dataset) {
                     .on("brushend", renderAll);
             });
 
-        // FIXME!!
+        //// FIXME!!
         //let nestByDate = d3.nest()
         //    .key((o) => { return d3.time.day(o.date); });
-        //
-        //let list = d3.selectAll("#results")
-        //    .data([resultList]);
+
+        let list = d3.selectAll("#results")
+            .data([resultList]);
 
         renderAll();
 
@@ -373,17 +367,56 @@ export function explore(dataset) {
 
         function renderAll() {
             chart.each(render);
-            //list.each(render);    // TODO: restore me!
+            list.each(render);
             d3.select("#active").text(formatNumber(all.value()));
         }
 
-        // FIXME!!
+        // TODO: improve me!
         function resultList(div) {
+            //const numberOfItemsToShow = Infinity;     // TODO: restore me!  D:
+            const numberOfItemsToShow = 50;     // TODO: remove me!  D:
+            let el = div[0];
+
+            logger(dummy.top(1), "dummy.top(1)");
+            logger(el, "el");
+
+            $(el)
+                .html(
+                    `<table><tbody>
+                    <tr>
+                        <td>Genero_Usuario</td>
+                        <td>Edad_Usuario</td>
+                        <td>Bici</td>
+                        <td>Ciclo_Estacion_Retiro</td>
+                        <td>Ciclo_Estacion_Arribo</td>
+                    </tr>
+
+                    ${
+                        _.map(dummy.top(numberOfItemsToShow), (o) => {
+                            return `<tr>
+                                <td>${o.Genero_Usuario}</td>
+                                <td>${o.Edad_Usuario}</td>
+                                <td>${o.Bici}</td>
+                                <td>${o.Ciclo_Estacion_Retiro}</td>
+                                <td>${o.Ciclo_Estacion_Arribo}</td>
+                            </tr>`;
+                        })
+                    }
+                    </tbody></table>`
+                );
+
+
+            //div.each(() => {
+            //
+            //});
+
+
+        /*
             let flightsByDate = nestByDate.entries(date.top(40));
 
-            div.each(function () {
+            div.each(() => {
                 let date = d3.select(this).selectAll(".date")
-                    .data(flightsByDate, function (o) {
+                    .data(flightsByDate, (o) => {
                         return o.key;
                     });
 
@@ -391,16 +424,16 @@ export function explore(dataset) {
                     .attr("class", "date")
                     .append("div")
                     .attr("class", "day")
-                    .text(function (d) {
+                    .text((d) => {
                         return formatDate(d.values[0].date);
                     });
 
                 date.exit().remove();
 
                 let flight = date.order().selectAll(".flight")
-                    .data(function (d) {
+                    .data((d) => {
                         return d.values;
-                    }, function (d) {
+                    }, (d) => {
                         return d.index;
                     });
 
@@ -409,25 +442,25 @@ export function explore(dataset) {
 
                 flightEnter.append("div")
                     .attr("class", "time")
-                    .text(function (d) {
+                    .text((d) => {
                         return formatTime(d.date);
                     });
 
                 flightEnter.append("div")
                     .attr("class", "origin")
-                    .text(function (d) {
+                    .text((d) => {
                         return d.origin;
                     });
 
                 flightEnter.append("div")
                     .attr("class", "destination")
-                    .text(function (d) {
+                    .text((d) => {
                         return d.destination;
                     });
 
                 flightEnter.append("div")
                     .attr("class", "distance")
-                    .text(function (d) {
+                    .text((d) => {
                         return formatNumber(d.distance) + " mi.";
                     });
 
@@ -436,7 +469,7 @@ export function explore(dataset) {
                     .classed("early", function (d) {
                         return d.delay < 0;
                     })
-                    .text(function (d) {
+                    .text((d) => {
                         return formatChange(d.delay) + " min.";
                     });
 
@@ -444,11 +477,26 @@ export function explore(dataset) {
 
                 flight.order();
             });
+        */
+
         }
 
     });
 }
 
+function dimensionByGender(o) {
+    //dimensionByPropProvider("Genero_Usuario")
+    switch (o["Genero_Usuario"]) {
+        case "F":
+            return 2;
+            break;
+        case "M":
+            return 1;
+            break;
+        default:
+            return 0;
+    }
+}
 
 function dimensionByPropProvider(prop, fn = identity) {
     return (o) => { return fn(o[prop]); };
@@ -465,9 +513,7 @@ function dimensionByUseTime(o) {
 
 function identity(_) { return _; }
 
-function resultList(div) {
-
-}
+function resultList(div) {}
 
 /**
         // ~~~~
@@ -583,4 +629,25 @@ function resultList(div) {
         byBike.dispose();
         byAgeGroup.dispose();
         byAge.dispose();
+ * */
+
+
+/**
+ {"Genero_Usuario":"M","Edad_Usuario":"28","Bici":"6452","Ciclo_Estacion_Retiro":"12","Fecha_Retiro":"2015-11-20","Hora_Retiro":"16:38:24.123000","Ciclo_Estacion_Arribo":"249","Fecha_Arribo":"2015-11-20","Hora_Arribo":"16:53:08"}
+ ,
+ {"Genero_Usuario":"M","Edad_Usuario":"32","Bici":"1030","Ciclo_Estacion_Retiro":"129","Fecha_Retiro":"2015-11-29","Hora_Retiro":"23:59:16.927000","Ciclo_Estacion_Arribo":"137","Fecha_Arribo":"2015-11-30","Hora_Arribo":"00:02:36"}
+ ,
+ {"Genero_Usuario":"M","Edad_Usuario":"27","Bici":"2684","Ciclo_Estacion_Retiro":"78","Fecha_Retiro":"2015-11-29","Hora_Retiro":"23:59:15.257000","Ciclo_Estacion_Arribo":"133","Fecha_Arribo":"2015-11-30","Hora_Arribo":"00:14:34"}
+ ,
+ {"Genero_Usuario":"M","Edad_Usuario":"33","Bici":"3739","Ciclo_Estacion_Retiro":"160","Fecha_Retiro":"2015-11-29","Hora_Retiro":"23:58:21.843000","Ciclo_Estacion_Arribo":"147","Fecha_Arribo":"2015-11-30","Hora_Arribo":"00:15:18"}
+
+ <td>Genero_Usuario</td>
+ <td>Edad_Usuario</td>
+ <td>Bici</td>
+ <td>Ciclo_Estacion_Retiro</td>
+ <!--<td>Fecha_Retiro</td>-->
+ <!--<td>Hora_Retiro</td>-->
+ <td>Ciclo_Estacion_Arribo</td>
+ <!--<td>Fecha_Arribo</td>-->
+ <!--<td>Hora_Arribo</td>-->
  * */
