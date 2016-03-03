@@ -15,7 +15,11 @@ var config = {
             { test: /\.js$/, loader: "babel", exclude: /node_modules/ },
             { test: /\.html$/, loader: "raw", exclude: /node_modules/ },
             { test: /\.css$/, loader: "style!css", exclude: /node_modules/ },
-            { test: /\.jpe?g$|\.gif$|\.png$|\.svg$|\.woff$|\.ttf$|\.eot$|\.wav$|\.mp3$/, loader: "file", exclude: /node_modules/ }
+            {
+                test: /\.png$|\.svg$|\.woff$|\.ttf$|\.eot$/,
+                loader: "file",
+                exclude: /node_modules/
+            }
         ]
     }
 };

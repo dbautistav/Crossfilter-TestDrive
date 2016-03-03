@@ -1,10 +1,14 @@
 "use strict";
 
+import agGrid from "ag-grid";
 import d3 from "d3";
 import crossfilter from "crossfilter";
 import moment from "moment";
 import Q from "q";
 import $ from "jquery";
+
+import "./../styles/vendor/ag-grid.css";
+import "./../styles/vendor/theme-fresh.css";
 
 import * as utils from "./utils";
 
@@ -51,6 +55,9 @@ export function explore(dataset) {
     const formatNumber = d3.format(",d")
         , logger = utils.loggerProvider()
         ;
+
+    let grid = null,
+        gridOptions = null;
 
 
     //// [795614]:
@@ -131,17 +138,11 @@ export function explore(dataset) {
                     .on("brushend", renderAll);
             });
 
-        //// FIXME!!
-        //let nestByDate = d3.nest()
-        //    .key((o) => { return d3.time.day(o.date); });
-
         let list = d3.selectAll("#results")
             .data([resultList]);
 
         renderAll();
 
-
-        //clean();            // TODO: restore me!
         return true;
 
 
@@ -151,7 +152,7 @@ export function explore(dataset) {
                     `<h2 id="zeitgeist">
                         Showing <span id="active">-</span> of <span id="total">-</span> results
                     </h2>
-                    <p><em>Use the charts as filters.</em></p>`);
+                    <p><em>Use charts as filters.</em></p>`);
 
             d3.select("#total")
                 .text(formatNumber(crossfilterSize));
@@ -357,12 +358,6 @@ export function explore(dataset) {
             return d3.rebind(chart, brush, "on");
         }
 
-        function clean() {
-            // TODO: restore me!
-            //byAgeGroup.dispose();
-            //byAge.dispose();
-        }
-
         function render(method) { d3.select(this).call(method); }
 
         function renderAll() {
@@ -371,114 +366,26 @@ export function explore(dataset) {
             d3.select("#active").text(formatNumber(all.value()));
         }
 
-        // TODO: improve me!
-        function resultList(div) {
-            //const numberOfItemsToShow = Infinity;     // TODO: restore me!  D:
-            const numberOfItemsToShow = 50;     // TODO: remove me!  D:
-            let el = div[0];
+        function resultList() {
+            const numberOfItemsToShow = 300;    //Infinity;
 
-            logger(dummy.top(1), "dummy.top(1)");
-            logger(el, "el");
+            if (gridOptions === null && grid === null) {
+                gridOptions = {
+                    columnDefs: [
+                        { headerName: "Genero_Usuario", field: "Genero_Usuario" },
+                        { headerName: "Edad_Usuario", field: "Edad_Usuario" },
+                        { headerName: "Bici", field: "Bici" },
+                        { headerName: "Ciclo_Estacion_Retiro", field: "Ciclo_Estacion_Retiro" },
+                        { headerName: "Ciclo_Estacion_Arribo", field: "Ciclo_Estacion_Arribo" }
+                    ],
+                    rowData: dummy.top(numberOfItemsToShow)
+                };
 
-            $(el)
-                .html(
-                    `<table><tbody>
-                    <tr>
-                        <td>Genero_Usuario</td>
-                        <td>Edad_Usuario</td>
-                        <td>Bici</td>
-                        <td>Ciclo_Estacion_Retiro</td>
-                        <td>Ciclo_Estacion_Arribo</td>
-                    </tr>
+                grid = new agGrid.Grid(document.querySelector("#results"), gridOptions);
 
-                    ${
-                        _.map(dummy.top(numberOfItemsToShow), (o) => {
-                            return `<tr>
-                                <td>${o.Genero_Usuario}</td>
-                                <td>${o.Edad_Usuario}</td>
-                                <td>${o.Bici}</td>
-                                <td>${o.Ciclo_Estacion_Retiro}</td>
-                                <td>${o.Ciclo_Estacion_Arribo}</td>
-                            </tr>`;
-                        })
-                    }
-                    </tbody></table>`
-                );
-
-
-            //div.each(() => {
-            //
-            //});
-
-
-        /*
-            let flightsByDate = nestByDate.entries(date.top(40));
-
-            div.each(() => {
-                let date = d3.select(this).selectAll(".date")
-                    .data(flightsByDate, (o) => {
-                        return o.key;
-                    });
-
-                date.enter().append("div")
-                    .attr("class", "date")
-                    .append("div")
-                    .attr("class", "day")
-                    .text((d) => {
-                        return formatDate(d.values[0].date);
-                    });
-
-                date.exit().remove();
-
-                let flight = date.order().selectAll(".flight")
-                    .data((d) => {
-                        return d.values;
-                    }, (d) => {
-                        return d.index;
-                    });
-
-                let flightEnter = flight.enter().append("div")
-                    .attr("class", "flight");
-
-                flightEnter.append("div")
-                    .attr("class", "time")
-                    .text((d) => {
-                        return formatTime(d.date);
-                    });
-
-                flightEnter.append("div")
-                    .attr("class", "origin")
-                    .text((d) => {
-                        return d.origin;
-                    });
-
-                flightEnter.append("div")
-                    .attr("class", "destination")
-                    .text((d) => {
-                        return d.destination;
-                    });
-
-                flightEnter.append("div")
-                    .attr("class", "distance")
-                    .text((d) => {
-                        return formatNumber(d.distance) + " mi.";
-                    });
-
-                flightEnter.append("div")
-                    .attr("class", "delay")
-                    .classed("early", function (d) {
-                        return d.delay < 0;
-                    })
-                    .text((d) => {
-                        return formatChange(d.delay) + " min.";
-                    });
-
-                flight.exit().remove();
-
-                flight.order();
-            });
-        */
-
+            } else {
+                gridOptions.api.setRowData(dummy.top(numberOfItemsToShow));
+            }
         }
 
     });
@@ -512,142 +419,3 @@ function dimensionByUseTime(o) {
 }
 
 function identity(_) { return _; }
-
-function resultList(div) {}
-
-/**
-        // ~~~~
-        $("#jumbo")
-            .html(
-                `<h2>Items loaded: ${observations.size()}</h2>
-                <p><em>Check the dev-tools console.</em></p>`
-            );
-
-        let byBike = observations.dimension((o, i) => {
-            return o.Bici;
-        });
-
-
-        let byBikeGroup = byBike.group();
-        logger(byBikeGroup.size(), "byBikeGroup");
-
-        //// Prints every 'Bici' id and number of occurrences:
-        //byBikeGroup.top(Infinity).forEach((o, i) => {
-        ////    key: set by dimension definition (observation attribute); value: count of 'key' occurrences
-        //    logger(`${o.key} : ${o.value}`);
-        //});
-
-        byBike.filter("0331");      // also: byBike.filterExact("0331");
-        logger('filterExact("0331")    |    (Edad. Genero)');
-        byBike.top(Infinity).forEach((o, i) => {
-            logger(`${o.Edad_Usuario} . ${o.Genero_Usuario}`);
-        });
-
-        // ~~~~
-        //let byGender = observations.dimension((o, i) => {
-        //    return o.Genero_Usuario;
-        //});
-        //
-        //let byGenderGroup = byGender.group();
-        logger(byGenderGroup.size(), "byGenderGroup");
-        byGenderGroup.top(Infinity).forEach((o, i) => {
-            ////    key: set by dimension definition (observation attribute); value: count of 'key' occurrences
-            logger(`${o.key} : ${o.value}`);
-        });
-        //// logger(["observations.groupAll().reduceCount().value()", observations.groupAll().reduceCount().value()]);
-        let filtered = byGender.top(Infinity).map((o, i) => {
-            return o;
-        });
-        logger(filtered);
-
-
-        // Resets previous filters:
-        byBike.filter(null);     // also: byBike.filterAll();
-
-
-        ////let byAge = observations.dimension((o, i) => {
-        ////    return parseInt(o.Edad_Usuario);
-        ////});
-        //let byAge = observations.dimension(dimensionByPropProvider("Edad_Usuario"));
-        logger(`Total # of users (dimension-top): ${byAge.top(Infinity).length}`);
-        logger(`Total # of users (crossfilter-size): ${observations.size()}`);
-
-        //byAge.group().top(Infinity).forEach((o, i) => {
-        //    ////    key: set by dimension definition (observation attribute); value: count of 'key' occurrences
-        //    logger(`${o.key} : ${o.value}`);
-        //});
-
-        let t0 = 23, tf = 25;
-        byAge.filter([t0, tf]);
-        logger(`# of users between ${t0} yo and ${tf} yo (both included): ${byAge.top(Infinity).length}`);
-
-
-        //// Prints every 'Bici' id and number of occurrences (affected by previous 'byAge.filter'):
-        //byBikeGroup.top(Infinity).forEach((o, i) => {
-        ////    key: set by dimension definition (observation attribute); value: count of 'key' occurrences
-        //    logger(`${o.key} : ${o.value}`);
-        //});
-
-
-        // ~~~~
-        t0 = 20;
-        tf = 21;
-        byAge.filter([t0, tf]);
-
-        logger(`# of users between ${t0} yo and ${tf} yo (both included): ${byAge.top(Infinity).length}`);
-
-        // By default, the group's reduce function will count the number of records per group.
-        // In addition, the groups will be ordered by count.
-        // [...] a grouping intersects the crossfilter's current filters,
-        //  except for the associated dimension's filter.
-        //  Thus, group methods consider only records that satisfy every filter except this dimension's filter.
-        byGenderGroup.top(Infinity).forEach((o, i) => {
-            ////    key: set by dimension definition (observation attribute); value: count of 'key' occurrences
-            logger(`${o.key} : ${o.value}`);
-        });
-
-
-        byAge.filter(null);
-        //let byAgeGroup = byAge.group();
-        logger(["byAgeGroup", byAgeGroup.size(), byAge.bottom(1)[0].Edad_Usuario, byAge.top(1)[0].Edad_Usuario]);
-
-        //byBikeGroup.top(Infinity).forEach((o, i) => {
-        ////    key: set by dimension definition (observation attribute); value: count of 'key' occurrences
-        //    logger(`${o.key} : ${o.value}`);
-        //});
-        //byAge.top(Infinity).forEach((o, i) => {
-        ////    key: set by dimension definition (observation attribute); value: count of 'key' occurrences
-        //    logger(`${o.key} : ${o.value}`);
-        //});
-
-
-        // This frees up space.
-        //  (groups and dimensions)
-        byGenderGroup.dispose();
-        byGender.dispose();
-        byBikeGroup.dispose();
-        byBike.dispose();
-        byAgeGroup.dispose();
-        byAge.dispose();
- * */
-
-
-/**
- {"Genero_Usuario":"M","Edad_Usuario":"28","Bici":"6452","Ciclo_Estacion_Retiro":"12","Fecha_Retiro":"2015-11-20","Hora_Retiro":"16:38:24.123000","Ciclo_Estacion_Arribo":"249","Fecha_Arribo":"2015-11-20","Hora_Arribo":"16:53:08"}
- ,
- {"Genero_Usuario":"M","Edad_Usuario":"32","Bici":"1030","Ciclo_Estacion_Retiro":"129","Fecha_Retiro":"2015-11-29","Hora_Retiro":"23:59:16.927000","Ciclo_Estacion_Arribo":"137","Fecha_Arribo":"2015-11-30","Hora_Arribo":"00:02:36"}
- ,
- {"Genero_Usuario":"M","Edad_Usuario":"27","Bici":"2684","Ciclo_Estacion_Retiro":"78","Fecha_Retiro":"2015-11-29","Hora_Retiro":"23:59:15.257000","Ciclo_Estacion_Arribo":"133","Fecha_Arribo":"2015-11-30","Hora_Arribo":"00:14:34"}
- ,
- {"Genero_Usuario":"M","Edad_Usuario":"33","Bici":"3739","Ciclo_Estacion_Retiro":"160","Fecha_Retiro":"2015-11-29","Hora_Retiro":"23:58:21.843000","Ciclo_Estacion_Arribo":"147","Fecha_Arribo":"2015-11-30","Hora_Arribo":"00:15:18"}
-
- <td>Genero_Usuario</td>
- <td>Edad_Usuario</td>
- <td>Bici</td>
- <td>Ciclo_Estacion_Retiro</td>
- <!--<td>Fecha_Retiro</td>-->
- <!--<td>Hora_Retiro</td>-->
- <td>Ciclo_Estacion_Arribo</td>
- <!--<td>Fecha_Arribo</td>-->
- <!--<td>Hora_Arribo</td>-->
- * */
